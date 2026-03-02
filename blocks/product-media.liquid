@@ -1,0 +1,186 @@
+{% doc %}
+  Renders product media gallery (images/videos) with configurable layout.
+  
+  Automatically displays all product media from the product object.
+
+  @example
+  {% content_for 'block', type: 'product-media', id: 'media' %}
+{% enddoc %}
+
+<div class="product-media {{ block.settings.layout }}" {{ block.shopify_attributes }}>
+  {% if product.media.size > 0 %}
+    {% for media in product.media limit: block.settings.media_limit %}
+      <div class="product-media__item">
+        {% case media.media_type %}
+          {% when 'image' %}
+            {% if block.settings.enable_zoom %}
+              <a href="{{ media | image_url: width: 2000 }}" target="_blank" class="product-media__zoom">
+                {{
+                  media
+                  | image_url: width: block.settings.image_width
+                  | image_tag: class: 'product-media__image', loading: 'lazy'
+                }}
+              </a>
+            {% else %}
+              {{
+                media
+                | image_url: width: block.settings.image_width
+                | image_tag: class: 'product-media__image', loading: 'lazy'
+              }}
+            {% endif %}
+
+          {% when 'video', 'external_video' %}
+            <div class="product-media__video">
+              {{ media | media_tag }}
+            </div>
+
+          {% when 'model' %}
+            <div class="product-media__model">
+              {{ media | media_tag }}
+            </div>
+        {% endcase %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="product-media__placeholder">
+      {{ 'product-1' | placeholder_svg_tag }}
+    </div>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .product-media {
+    display: grid;
+    gap: var(--media-gap, 1rem);
+    width: 100%;
+  }
+
+  .product-media--grid-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .product-media--grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .product-media--grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .product-media--carousel {
+    grid-template-columns: 1fr;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .product-media--carousel .product-media__item {
+    scroll-snap-align: start;
+  }
+
+  .product-media__item {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .product-media__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-media__zoom {
+    display: block;
+    cursor: zoom-in;
+    transition: opacity 0.2s;
+  }
+
+  .product-media__zoom:hover {
+    opacity: 0.9;
+  }
+
+  .product-media__video,
+  .product-media__model {
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-media__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .product-media__placeholder svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.3;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .product-media--grid-2,
+    .product-media--grid-3 {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product Media",
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "product-media--grid-1", "label": "Single Column" },
+        { "value": "product-media--grid-2", "label": "2 Columns" },
+        { "value": "product-media--grid-3", "label": "3 Columns" },
+        { "value": "product-media--carousel", "label": "Carousel" }
+      ],
+      "default": "product-media--grid-2"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image Width",
+      "min": 400,
+      "max": 2000,
+      "step": 100,
+      "unit": "px",
+      "default": 800
+    },
+    {
+      "type": "range",
+      "id": "media_limit",
+      "label": "Maximum media items to show",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 10
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "Enable click to zoom",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Media",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,175 @@
+{% doc %}
+  Renders a product card with image, title, price, and status badges
+
+  @param {product} product - The product object to display (required)
+  @param {boolean} [show_vendor] - Whether to show vendor name (optional, default: false)
+
+  @example
+  {% render 'product-card', product: product %}
+  {% render 'product-card', product: product, show_vendor: true %}
+{% enddoc %}
+
+{% liquid
+  assign show_vendor = show_vendor | default: false
+%}
+
+<div class="product-card">
+  <div class="product-card__media">
+    <a href="{{ product.url }}">
+      {% if product.featured_image %}
+        {{ product.featured_image | image_url: width: 400 | image_tag: class: 'product-card__image' }}
+      {% else %}
+        <div class="product-card__placeholder">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+    </a>
+
+    <div class="product-card__badges">
+      {% if product.compare_at_price > product.price %}
+        <span class="badge badge--sale">Sale</span>
+      {% endif %}
+      {% unless product.available %}
+        <span class="badge badge--sold-out">Sold Out</span>
+      {% endunless %}
+    </div>
+  </div>
+
+  <div class="product-card__content">
+    {% if show_vendor and product.vendor != blank %}
+      <p class="product-card__vendor">{{ product.vendor }}</p>
+    {% endif %}
+
+    <h3 class="product-card__title">
+      <a href="{{ product.url }}">{{ product.title | escape }}</a>
+    </h3>
+
+    <div class="product-card__price">
+      {% if product.compare_at_price > product.price %}
+        <span class="product-card__compare-price">{{ product.compare_at_price | money }}</span>
+      {% endif %}
+      <span class="product-card__current-price">{{ product.price | money }}</span>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .product-card {
+    position: relative;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-card__media {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .product-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-card__image {
+    transform: scale(1.05);
+  }
+
+  .product-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-card__placeholder svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.5;
+  }
+
+  .product-card__badges {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+  }
+
+  .badge--sale {
+    background: #dc2626;
+    color: white;
+  }
+
+  .badge--sold-out {
+    background: #525252;
+    color: white;
+  }
+
+  .product-card__content {
+    padding: 1rem;
+  }
+
+  .product-card__vendor {
+    margin: 0 0 0.25rem;
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .product-card__title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .product-card__title a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .product-card__title a:hover {
+    text-decoration: underline;
+  }
+
+  .product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .product-card__compare-price {
+    text-decoration: line-through;
+    color: #666;
+    font-size: 0.875rem;
+  }
+
+  .product-card__current-price {
+    font-weight: 600;
+  }
+
+  .badge--sale + .product-card__current-price,
+  .product-card__compare-price + .product-card__current-price {
+    color: #dc2626;
+  }
+{% endstylesheet %}

@@ -11,6 +11,39 @@
   "sections": {
     "main": {
       "type": "product",
+      "blocks": {
+        "product_media_BxB7mH": {
+          "type": "product-media",
+          "name": "Product Media",
+          "settings": {
+            "layout": "product-media--grid-2",
+            "image_width": 800,
+            "media_limit": 10,
+            "enable_zoom": true
+          },
+          "blocks": {}
+        },
+        "product_info_7TMfpj": {
+          "type": "product-info",
+          "name": "Product Info",
+          "settings": {
+            "show_vendor": false,
+            "show_title": true,
+            "show_sku": false,
+            "show_price": true,
+            "show_availability": true,
+            "in_stock_text": "In Stock",
+            "sold_out_text": "Sold Out",
+            "show_description": true,
+            "show_tags": false
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "product_media_BxB7mH",
+        "product_info_7TMfpj"
+      ],
       "settings": {}
     }
   },

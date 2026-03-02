@@ -1,20 +1,5 @@
-{% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
-{% endcomment %}
-
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
-
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
+<div class="product-page">
+  {% content_for 'blocks' %}
 </div>
 
 <div class="product-form">
@@ -43,10 +28,49 @@
 
 {% schema %}
 {
-  "name": "t:general.product",
+  "name": "Product",
   "settings": [],
+  "blocks": [{ "type": "@theme" }],
+  "presets": [
+    {
+      "name": "Product",
+      "blocks": [
+        {
+          "type": "product-media"
+        },
+        {
+          "type": "product-info"
+        }
+      ]
+    }
+  ],
   "disabled_on": {
     "groups": ["header", "footer"]
   }
 }
 {% endschema %}
+
+{% stylesheet %}
+  .product-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  /* Two-column layout on larger screens */
+  @media (min-width: 768px) {
+    .product-page {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Single column on mobile */
+  @media (max-width: 767px) {
+    .product-page {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+    }
+  }
+{% endstylesheet %}
