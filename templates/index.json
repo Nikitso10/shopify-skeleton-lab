@@ -12,9 +12,67 @@
     "main": {
       "type": "custom-collections-grid",
       "settings": {}
+    },
+    "testimonials_slider_BJdmwm": {
+      "type": "testimonials-slider",
+      "blocks": {
+        "testimonial_aATQng": {
+          "type": "testimonial",
+          "settings": {
+            "image": "shopify://shop_images/leather-anchor-bracelet-for-men_925x_7884c007-7f14-4d29-b3b8-485f3a38ecbc.jpg",
+            "name": "Melanie Stone",
+            "description": "An elegant bracelet that compliments my outfits. Very well made.",
+            "star_rating": 4
+          }
+        },
+        "testimonial_yzbxfM": {
+          "type": "testimonial",
+          "settings": {
+            "image": "shopify://shop_images/guardian-angel-earring-closeup_925x_410ec261-8393-4556-aa47-f76240d62663.jpg",
+            "name": "Nicole Brown",
+            "description": "This set of earrings and necklace was a gift. I wear it almost every day!"
+          }
+        },
+        "testimonial_8XKxiK": {
+          "type": "testimonial",
+          "settings": {
+            "image": "shopify://shop_images/inspired-woman_925x_4d7fa73f-8d95-46de-95a2-69ab6acbbcda.jpg",
+            "name": "Lisa Bonita",
+            "description": "Exceplional quality !!! Loved the earrings!!!"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_aATQng",
+        "testimonial_yzbxfM",
+        "testimonial_8XKxiK"
+      ],
+      "name": "Testimonial Slider",
+      "settings": {
+        "section_heading": "Testimonials",
+        "heading_color": "#ed4d4d",
+        "heading_alignment": "center",
+        "heading_size": "medium",
+        "full_width": false,
+        "section_bg_color": "#f3f0d0",
+        "section_padding_top": 40,
+        "section_padding_bottom": 40,
+        "auto_slide": true,
+        "auto_slide_speed": 6000,
+        "show_arrows": true,
+        "arrow_shape": "circle",
+        "arrow_bg_color": "#000000",
+        "image_shape": "circle",
+        "image_size": "small",
+        "visible_slides": 1,
+        "visible_mobile": 1,
+        "testimonial_name_size": 20,
+        "card_shadow": false
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "testimonials_slider_BJdmwm"
   ]
 }

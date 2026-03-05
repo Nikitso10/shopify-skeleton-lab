@@ -1,0 +1,509 @@
+<style>
+    /* Outer section spans full width */
+    #testimonial-slider-{{ section.id }} {
+      width: 100%;
+      text-align: center;
+    }
+    /* Container for heading and slider */
+    #testimonial-slider-{{ section.id }} .testimonial-slider-container {
+      margin: 0 auto;
+    }
+    #testimonial-slider-{{ section.id }} .testimonial-heading {
+      font-size: {% if section.settings.heading_size == 'small' %}24px{% elsif section.settings.heading_size == 'medium' %}32px{% elsif section.settings.heading_size == 'large' %}40px{% endif %};
+      text-align: {{ section.settings.heading_alignment }};
+      margin-bottom: 20px;
+      color: {{ section.settings.heading_color }};
+    }
+    #testimonial-slider-{{ section.id }} .testimonial-slider-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+    #testimonial-slider-{{ section.id }} .testimonial-slider {
+      overflow: hidden;
+      position: relative;
+    }
+    #testimonial-slider-{{ section.id }} .slider-track {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      will-change: transform;
+    }
+    /* Desktop: Each slide's width based on visible_slides setting */
+    #testimonial-slider-{{ section.id }} .testimonial-slide {
+      flex: 0 0 calc(100% / {{ section.settings.visible_slides }});
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    /* Mobile override: use visible_mobile setting */
+    @media (max-width: 767px) {
+      #testimonial-slider-{{ section.id }} .testimonial-slide {
+        flex: 0 0 calc(100% / {{ section.settings.visible_mobile }});
+      }
+    }
+    #testimonial-slider-{{ section.id }} .testimonial-slide img {
+      display: block;
+      margin: 0 auto 15px;
+      object-fit: cover;
+
+      {% if section.settings.image_shape == 'circle' %}
+        border-radius: 50%;
+      {% else %}
+        border-radius: 0;
+      {% endif %}
+      {% if section.settings.image_size == 'small' %}
+        width: 80px;
+        height: 80px;
+      {% else %}
+        width: 150px;
+        height: 150px;
+      {% endif %}
+    }
+    #testimonial-slider-{{ section.id }} .testimonial-name {
+      font-size: {{ section.settings.testimonial_name_size }}px;
+      margin-bottom: 10px;
+
+    }
+    #testimonial-slider-{{ section.id }} .testimonial-text {
+      font-size: 16px;
+    }
+    /* Arrow Buttons */
+    #testimonial-slider-{{ section.id }} .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: {{ section.settings.arrow_bg_color }};
+      color: #fff;
+      border: none;
+      font-size: 24px;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 10;
+      border-radius: {% if section.settings.arrow_shape == 'circle' %}50%{% else %}0{% endif %};
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0px 0px;
+      width: 50px;
+      height: 50px;
+    }
+    #testimonial-slider-{{ section.id }} .left-arrow {
+      left: 10px;
+    }
+    #testimonial-slider-{{ section.id }} .right-arrow {
+      right: 10px;
+    }
+    #testimonial-slider-{{ section.id }} .star-rating {
+    margin-bottom: 10px;
+  }
+  #testimonial-slider-{{ section.id }} .star-rating .star {
+    font-size: 20px;
+    color: #ccc;
+  }
+  #testimonial-slider-{{ section.id }} .star-rating .star.filled {
+    color: {{ section.settings.star_color }};
+  }
+</style>
+
+{%- comment -%}
+  Use the "visible_slides" setting as the number of slides to show (desktop) and "visible_mobile" for mobile.
+  Also, clone the last N testimonials at the beginning and first N at the end.
+{%- endcomment -%}
+{% assign clonecount = section.settings.visible_slides %}
+{% assign img_px = 80 %}
+{% if section.settings.image_size == 'big' %}{% assign img_px = 150 %}{% endif %}
+
+<div
+  id="testimonial-slider-{{ section.id }}"
+  class="page-width testimonial-slider-section"
+  style="background-color: {{ section.settings.section_bg_color }}; padding-top: {{ section.settings.section_padding_top }}px; padding-bottom: {{ section.settings.section_padding_bottom }}px;"
+>
+  <div
+    class="testimonial-slider-container"
+    style="width: {% if section.settings.full_width %}100%{% else %}80%{% endif %}; margin: 0 auto;"
+  >
+    {% if section.settings.section_heading != blank %}
+      <h2 class="testimonial-heading">{{ section.settings.section_heading }}</h2>
+    {% endif %}
+    <div class="testimonial-slider-wrapper">
+      {% if section.settings.show_arrows %}
+        <button class="arrow left-arrow">❮</button>
+      {% endif %}
+      <div class="testimonial-slider">
+        <div class="slider-track">
+          {% assign total = section.blocks.size %}
+          {% if total > 0 %}
+            {%- comment -%}
+              Clone the last {{ clonecount }} testimonials at the beginning.
+            {%- endcomment -%}
+            {% assign offset_value = total | minus: clonecount %}
+            {% for block in section.blocks limit: clonecount offset: offset_value %}
+              <div
+                class="testimonial-slide clone"
+                {% if section.settings.card_shadow %}
+                  style="box-shadow: 0px 4px 8px rgba(0,0,0,0.2);"
+                {% endif %}
+              >
+                {% if block.settings.image != blank %}
+                  <img
+                    class="testimonial-image"
+                    src="{{ block.settings.image | image_url: width: img_px }}"
+                    alt="{{ block.settings.name }}"
+                    width="{{ img_px }}"
+                    height="{{ img_px }}"
+                  >
+                {% endif %}
+                <h3 class="testimonial-name">{{ block.settings.name }}</h3>
+                <div class="star-rating">
+                  {% for i in (1..5) %}
+                    <span class="star {% if i <= block.settings.star_rating %}filled{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+                <p class="testimonial-text">{{ block.settings.description }}</p>
+              </div>
+            {% endfor %}
+
+            {%- comment -%}
+              Real testimonial slides.
+            {%- endcomment -%}
+            {% for block in section.blocks %}
+              <div
+                class="testimonial-slide"
+                {% if section.settings.card_shadow %}
+                  style="box-shadow: 0px 4px 8px rgba(0,0,0,0.2);"
+                {% endif %}
+              >
+                {% if block.settings.image != blank %}
+                  <img
+                    class="testimonial-image"
+                    src="{{ block.settings.image | image_url: width: img_px }}"
+                    alt="{{ block.settings.name }}"
+                    width="{{ img_px }}"
+                    height="{{ img_px }}"
+                  >
+                {% endif %}
+                <h3 class="testimonial-name">{{ block.settings.name }}</h3>
+                <div class="star-rating">
+                  {% for i in (1..5) %}
+                    <span class="star {% if i <= block.settings.star_rating %}filled{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+                <p class="testimonial-text">{{ block.settings.description }}</p>
+              </div>
+            {% endfor %}
+
+            {%- comment -%}
+              Clone the first {{ clonecount }} testimonials at the end.
+            {%- endcomment -%}
+            {% for block in section.blocks limit: clonecount %}
+              <div
+                class="testimonial-slide clone"
+                {% if section.settings.card_shadow %}
+                  style="box-shadow: 0px 4px 8px rgba(0,0,0,0.2);"
+                {% endif %}
+              >
+                {% if block.settings.image != blank %}
+                  <img
+                    class="testimonial-image"
+                    src="{{ block.settings.image | image_url: width: img_px }}"
+                    alt="{{ block.settings.name }}"
+                    width="{{ img_px }}"
+                    height="{{ img_px }}"
+                  >
+                {% endif %}
+                <h3 class="testimonial-name">{{ block.settings.name }}</h3>
+                <div class="star-rating">
+                  {% for i in (1..5) %}
+                    <span class="star {% if i <= block.settings.star_rating %}filled{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+                <p class="testimonial-text">{{ block.settings.description }}</p>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      {% if section.settings.show_arrows %}
+        <button class="arrow right-arrow">❯</button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const container = document.getElementById("testimonial-slider-{{ section.id }}");
+    if (!container) return;
+    const sliderTrack = container.querySelector(".slider-track");
+    const slides = container.querySelectorAll(".testimonial-slide");
+    if (slides.length === 0) return;
+
+    // Define gap (if any gap is needed, adjust here; not used in calc() since we used 100%/visibleSlides)
+    const gap = 0;
+
+    // For desktop: get slide width based on visible_slides setting
+    let visibleSlides = {{ section.settings.visible_slides }};
+    let slideWidth = container.querySelector(".testimonial-slider").offsetWidth / visibleSlides;
+
+    function updateSlidePosition() {
+      sliderTrack.style.transform = "translateX(-" + (currentIndex * slideWidth) + "px)";
+    }
+
+    let currentIndex = {{ clonecount }};
+    updateSlidePosition();
+
+    function nextSlide() {
+      currentIndex++;
+      sliderTrack.style.transition = "transform 0.5s ease-in-out";
+      updateSlidePosition();
+      if (currentIndex >= slides.length - {{ clonecount }}) {
+        setTimeout(() => {
+          sliderTrack.style.transition = "none";
+          currentIndex = {{ clonecount }};
+          updateSlidePosition();
+          void sliderTrack.offsetWidth;
+          sliderTrack.style.transition = "transform 0.5s ease-in-out";
+        }, 500);
+      }
+    }
+
+    function prevSlide() {
+      currentIndex--;
+      sliderTrack.style.transition = "transform 0.5s ease-in-out";
+      updateSlidePosition();
+      if (currentIndex < {{ clonecount }}) {
+        setTimeout(() => {
+          sliderTrack.style.transition = "none";
+          currentIndex = slides.length - {{ clonecount }} - 1;
+          updateSlidePosition();
+          void sliderTrack.offsetWidth;
+          sliderTrack.style.transition = "transform 0.5s ease-in-out";
+        }, 500);
+      }
+    }
+
+    const leftArrow = container.querySelector(".left-arrow");
+    const rightArrow = container.querySelector(".right-arrow");
+    if (leftArrow) leftArrow.addEventListener("click", prevSlide);
+    if (rightArrow) rightArrow.addEventListener("click", nextSlide);
+
+    const autoSlide = {{ section.settings.auto_slide | json }};
+    const autoSlideSpeed = {{ section.settings.auto_slide_speed | json }};
+    if (autoSlide) {
+      setInterval(nextSlide, autoSlideSpeed);
+    }
+
+    window.addEventListener("resize", () => {
+      // Recalculate slide width
+      visibleSlides = window.innerWidth <= 767 ? {{ section.settings.visible_mobile }} : {{ section.settings.visible_slides }};
+      slideWidth = container.querySelector(".testimonial-slider").offsetWidth / visibleSlides;
+      sliderTrack.style.transition = "none";
+      updateSlidePosition();
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Testimonial Slider",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Section Heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Section Heading Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Section Heading Size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full Width Section",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Section Padding Top (px)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Section Padding Bottom (px)",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_slide",
+      "label": "Enable Auto Slide",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "auto_slide_speed",
+      "label": "Auto Slide Speed (ms)",
+      "min": 100,
+      "max": 9000,
+      "step": 100,
+      "default": 6000
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show Left/Right Arrows",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "arrow_shape",
+      "label": "Arrow Shape",
+      "options": [
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_color",
+      "label": "Arrow Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "image_shape",
+      "label": "Image Shape",
+      "options": [
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star Color",
+      "default": "#FFD700"
+    },
+    {
+      "type": "select",
+      "id": "image_size",
+      "label": "Image Size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "big", "label": "Big" }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "range",
+      "id": "visible_slides",
+      "label": "Number of Visible Slides (Desktop)",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "visible_mobile",
+      "label": "Number of Visible Slides (Mobile)",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "testimonial_name_size",
+      "label": "Testimonial Name Font Size (px)",
+      "min": 12,
+      "max": 36,
+      "step": 1,
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "card_shadow",
+      "label": "Enable Testimonial Card Shadow",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Testimonial Text"
+        },
+        {
+          "type": "range",
+          "id": "star_rating",
+          "label": "Star Rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    {
+      "name": "Testimonial Slider"
+    }
+  ]
+}
+{% endschema %}
